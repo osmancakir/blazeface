@@ -174,9 +174,9 @@ class Camera extends React.Component {
           } catch (err) {
             console.log(err.message);
           }
-          const start = predictions[i].topLeft;
-          const end = predictions[i].bottomRight;
-          const size = [end[0] - start[0], end[1] - start[1]];
+          //const start = predictions[i].topLeft;
+          //const end = predictions[i].bottomRight;
+          //const size = [end[0] - start[0], end[1] - start[1]];
 
       
 
@@ -236,7 +236,7 @@ class Camera extends React.Component {
     this.helpCanvas.current.toBlob(blob => this.onCapture(blob), "image/jpeg", 1);
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     // convert it to a usable data URL
-    const dataURL = canvas.toDataURL();
+    //const dataURL = canvas.toDataURL();
     // this.takeSnapshot(
     //   dataURL,
     //   this.setCapturedImages,
