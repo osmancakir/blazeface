@@ -15,7 +15,9 @@ import * as tfjsWasm from "@tensorflow/tfjs-backend-wasm";
 tfjsWasm.setWasmPath(
   '/tfjs-backend-wasm.wasm'
 );
-const blazeface = require("@tensorflow-models/blazeface");
+//const blazeface = require("@tensorflow-models/blazeface");
+const blazeface = require("@evoid/blazeface");
+//const blazeface = require('tensorflow-models-blazeface/@tensorflow-models/blazeface')
 const VideoStyle = createGlobalStyle`
     .modal {
       overflow-y: hidden !important;
@@ -118,6 +120,7 @@ class Camera extends React.Component {
     this.avatarUrlPost = this.props.avatarUrlPost;
     this.setCapturedImages = this.props.setCapturedImages;
     this.takeSnapshot = this.props.takeSnapshot;
+    this.onCapture = this.props.onCapture
   }
 
   async componentDidMount() {
@@ -230,18 +233,39 @@ class Camera extends React.Component {
     let ctx = canvas.getContext("2d");
     ctx.scale(-1, 1);
     ctx.drawImage(video, -canvas.width, 0);
+    this.helpCanvas.current.toBlob(blob => this.onCapture(blob), "image/jpeg", 1);
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     // convert it to a usable data URL
     const dataURL = canvas.toDataURL();
-    this.takeSnapshot(
-      dataURL,
-      this.setCapturedImages,
-      this.avatarUrlPost,
-      canvas,
-      video.videoWidth,
-      video.videoHeight
-    );
+    // this.takeSnapshot(
+    //   dataURL,
+    //   this.setCapturedImages,
+    //   this.avatarUrlPost,
+    //   canvas,
+    //   video.videoWidth,
+    //   video.videoHeight
+    // );
   };
+
+  handleCapture() {
+    const context = this.refCanvas.current.getContext("2d")
+
+    context.drawImage(
+      this.refVideo.current,
+      0,
+      0,
+      300,
+      300,
+      0,
+      0,
+      this.canvas.width,
+      this.canvas.height
+
+    )
+
+   
+
+  }
 
   componentWillUnmount() {
     this.play = false;
@@ -264,7 +288,7 @@ class Camera extends React.Component {
           <button
             id="snapshotButton"
             className="snapshoot_button btn btn-link"
-            onClick={() => console.log("capture photo")}//this.capturePhoto()}
+            onClick={() => this.capturePhoto()}//this.capturePhoto()}
           >
             Capture
           </button>
