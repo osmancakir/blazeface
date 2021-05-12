@@ -19,7 +19,7 @@
   "scripts": {
     "wasm": "copyfiles tfjs-backend-wasm.wasm licences.html model.json group1-shard1of1.bin ./public",
     "start": "yarn wasm && react-scripts start",
-    "build": "yarn winwasm && react-scripts build",
+    "build": "yarn wasm && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
