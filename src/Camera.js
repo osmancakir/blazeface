@@ -5,18 +5,15 @@
 // TODO: capture button should capture a photo and preview it on the modal capturing based on the roi
 // TODO: modify blazeface so there is no request outside the react app
 
-
-import React from "react";
-import { createGlobalStyle } from "styled-components";
-import styled from "styled-components";
+import React from 'react'
+import {createGlobalStyle} from 'styled-components'
+import styled from 'styled-components'
 import {drawRoiOnCanvas} from './utils'
-import * as tf from "@tensorflow/tfjs-core";
-import * as tfjsWasm from "@tensorflow/tfjs-backend-wasm";
-tfjsWasm.setWasmPath(
-  '/tfjs-backend-wasm.wasm'
-);
+import * as tf from '@tensorflow/tfjs-core'
+import * as tfjsWasm from '@tensorflow/tfjs-backend-wasm'
+tfjsWasm.setWasmPath('/tfjs-backend-wasm.wasm')
 //const blazeface = require("@tensorflow-models/blazeface");
-const blazeface = require("@evoid/blazeface");
+const blazeface = require('@evoid/blazeface')
 //const blazeface = require('tensorflow-models-blazeface/@tensorflow-models/blazeface')
 const VideoStyle = createGlobalStyle`
     .modal {
@@ -37,7 +34,7 @@ const VideoStyle = createGlobalStyle`
     }
     .button_wrapper {
       position: fixed;
-      top: 350px;
+      top: 450px;
       width: 100%;
       text-align: center;
     }
@@ -61,7 +58,7 @@ const VideoStyle = createGlobalStyle`
         top: unset;
       }
     }
-`;
+`
 
 const CameraCanvas = styled.canvas`
   position: absolute;
@@ -74,7 +71,7 @@ const CameraCanvas = styled.canvas`
   margin-left: auto;
   margin-right: auto;
   text-align: center;
-`;
+`
 
 const HelpCanvas = styled.canvas`
   position: absolute;
@@ -88,7 +85,7 @@ const HelpCanvas = styled.canvas`
   margin-right: auto;
   text-align: center;
   display: none;
-`;
+`
 
 const Video = styled.video`
   position: absolute;
@@ -104,103 +101,100 @@ const Video = styled.video`
   right: 0;
   top: -3px;
   text-align: center;
-`;
+`
 
 class Camera extends React.Component {
   constructor(props) {
-    super(props);
-    this.play = true;
-    this.stream = "";
-    this.ticker = null;
-    this.ref = React.createRef();
-    this.refCanvas = React.createRef();
-    this.refVideo = React.createRef();
-    this.helpCanvas = React.createRef();
-    this.onClose = this.props.onClose;
-    this.avatarUrlPost = this.props.avatarUrlPost;
-    this.setCapturedImages = this.props.setCapturedImages;
-    this.takeSnapshot = this.props.takeSnapshot;
+    super(props)
+    this.play = true
+    this.stream = ''
+    this.ticker = null
+    this.ref = React.createRef()
+    this.refCanvas = React.createRef()
+    this.refVideo = React.createRef()
+    this.helpCanvas = React.createRef()
+    this.onClose = this.props.onClose
+    this.avatarUrlPost = this.props.avatarUrlPost
+    this.setCapturedImages = this.props.setCapturedImages
+    this.takeSnapshot = this.props.takeSnapshot
     this.onCapture = this.props.onCapture
+    this.handleClose = this.props.handleClose
   }
 
   async componentDidMount() {
-    await tf.setBackend('wasm');
-    await this.setupCamera();
-    let video = this.refVideo.current;
-    video.play();
+    await tf.setBackend('wasm')
+    await this.setupCamera()
+    let video = this.refVideo.current
+    video.play()
 
-    let videoWidth = video.videoWidth;       
-    let videoHeight = video.videoHeight;
-    video.width = videoWidth;
-    video.height = videoHeight;
+    let videoWidth = video.videoWidth
+    let videoHeight = video.videoHeight
+    video.width = videoWidth
+    video.height = videoHeight
 
-    const canvas = this.refCanvas.current;
-    canvas.width = videoWidth;
-    canvas.height = videoHeight;
-    const ctx = canvas.getContext("2d");
-    ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
+    const canvas = this.refCanvas.current
+    canvas.width = videoWidth
+    canvas.height = videoHeight
+    const ctx = canvas.getContext('2d')
+    ctx.fillStyle = 'rgba(255, 0, 0, 0.5)'
 
-    this.renderPrediction();
+    this.renderPrediction()
   }
 
-  
   renderPrediction = async () => {
     tf.engine().startScope() // clean up unused tensors
-    const model = await blazeface.load({ maxFaces: 1, scoreThreshold: 0.95 });
+    const model = await blazeface.load({maxFaces: 1, scoreThreshold: 0.95})
     if (this.play) {
-      const canvas = this.refCanvas.current;
-      const ctx = canvas.getContext("2d");
-      const returnTensors = false;
-      const flipHorizontal = true;
-      const annotateBoxes = true;
+      const canvas = this.refCanvas.current
+      const ctx = canvas.getContext('2d')
+      const returnTensors = false
+      const flipHorizontal = true
+      const annotateBoxes = true
       const predictions = await model.estimateFaces(
         this.refVideo.current,
         returnTensors,
         flipHorizontal,
-        annotateBoxes
-      );
+        annotateBoxes,
+      )
 
       if (predictions.length > 0) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
         for (let i = 0; i < predictions.length; i++) {
           if (returnTensors) {
-            predictions[i].topLeft = predictions[i].topLeft.arraySync();
-            predictions[i].bottomRight = predictions[i].bottomRight.arraySync();
+            predictions[i].topLeft = predictions[i].topLeft.arraySync()
+            predictions[i].bottomRight = predictions[i].bottomRight.arraySync()
             if (annotateBoxes) {
-              predictions[i].landmarks = predictions[i].landmarks.arraySync();
+              predictions[i].landmarks = predictions[i].landmarks.arraySync()
             }
           }
           try {
           } catch (err) {
-            console.log(err.message);
+            console.log(err.message)
           }
           //const start = predictions[i].topLeft;
           //const end = predictions[i].bottomRight;
           //const size = [end[0] - start[0], end[1] - start[1]];
 
-      
-
-
           if (annotateBoxes) {
-            const landmarks = predictions[i].landmarks;
+            const landmarks = predictions[i].landmarks
 
-            ctx.fillStyle = "blue";
+            ctx.fillStyle = 'blue'
             for (let j = 0; j < landmarks.length; j++) {
-              const x = landmarks[j][0];
-              const y = landmarks[j][1];
-              ctx.fillRect(x, y, 5, 5);
+              const x = landmarks[j][0]
+              const y = landmarks[j][1]
+              ctx.fillRect(x, y, 5, 5)
             }
           }
           drawRoiOnCanvas(canvas, ctx, predictions[i]) //this.portraitMode, // this.setDisableButtons)
         }
       }
-      requestAnimationFrame(this.renderPrediction);
+      requestAnimationFrame(this.renderPrediction)
     }
     tf.engine().endScope()
-  };
+  }
 
   setupCamera = async () => {
-    const video = this.refVideo.current;
+    const video = this.refVideo.current
     const stream = await navigator.mediaDevices.getUserMedia({
       audio: false,
       video: {
@@ -210,31 +204,31 @@ class Camera extends React.Component {
         height: {
           min: 720,
         },
-        facingMode: "user",
+        facingMode: 'user',
       },
-    });
-    this.stream = stream;
-    video.srcObject = stream;
+    })
+    this.stream = stream
+    video.srcObject = stream
 
     return new Promise((resolve) => {
       video.onloadedmetadata = () => {
-        resolve(video);
-      };
-    });
-  };
+        resolve(video)
+      }
+    })
+  }
 
   capturePhoto = () => {
-    const video = this.refVideo.current;
-    const canvas = this.helpCanvas.current;
+    const video = this.refVideo.current
+    const canvas = this.helpCanvas.current
     // scale the canvas accordingly
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
     // draw the video at that frame and apply mirror effect
-    let ctx = canvas.getContext("2d");
-    ctx.scale(-1, 1);
-    ctx.drawImage(video, -canvas.width, 0);
-    this.helpCanvas.current.toBlob(blob => this.onCapture(blob), "image/jpeg", 1);
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    let ctx = canvas.getContext('2d')
+    ctx.scale(-1, 1)
+    ctx.drawImage(video, -canvas.width, 0)
+    this.helpCanvas.current.toBlob((blob) => this.onCapture(blob), 'image/jpeg', 1)
+    ctx.setTransform(1, 0, 0, 1, 0, 0)
     // convert it to a usable data URL
     //const dataURL = canvas.toDataURL();
     // this.takeSnapshot(
@@ -245,10 +239,10 @@ class Camera extends React.Component {
     //   video.videoWidth,
     //   video.videoHeight
     // );
-  };
+  }
 
   handleCapture() {
-    const context = this.refCanvas.current.getContext("2d")
+    const context = this.refCanvas.current.getContext('2d')
 
     context.drawImage(
       this.refVideo.current,
@@ -259,20 +253,16 @@ class Camera extends React.Component {
       0,
       0,
       this.canvas.width,
-      this.canvas.height
-
+      this.canvas.height,
     )
-
-   
-
   }
 
   componentWillUnmount() {
-    this.play = false;
-    let video = this.refVideo.current;
-    video.pause();
-    video.src = "";
-    this.stream.getTracks()[0].stop();
+    this.play = false
+    let video = this.refVideo.current
+    video.pause()
+    video.src = ''
+    this.stream.getTracks()[0].stop()
   }
 
   render() {
@@ -288,20 +278,20 @@ class Camera extends React.Component {
           <button
             id="snapshotButton"
             className="snapshoot_button btn btn-link"
-            onClick={() => this.capturePhoto()}//this.capturePhoto()}
+            onClick={() => this.capturePhoto()} //this.capturePhoto()}
           >
             Capture
           </button>
           <button
             className="close_camera_button btn btn-link"
-            onClick={() => console.log("close Modal")}//this.onClose}
+            onClick={() => this.handleClose()} //this.onClose}
           >
             Close
           </button>
         </div>
       </div>
-    );
+    )
   }
 }
 
-export default Camera;
+export default Camera
