@@ -1,7 +1,7 @@
 import React, {useState} from 'react'
 import ReactDOM from 'react-dom'
 //import './index.css';
-import Camera from './Camera'
+import Camera from './Camera2'
 //import * as serviceWorker from './serviceWorker';
 
 function App() {
@@ -16,7 +16,7 @@ function App() {
   return (
     <>
       {isCameraOpen && (
-        <Camera onCapture={(blob) => setCardImage(blob)} handleClose={handleClose} />
+        <Camera  />
       )}
 
       {cardImage && (

@@ -199,15 +199,18 @@ class Camera extends React.Component {
       audio: false,
       video: {
         width: {
-          min: 1280,
+          min: 640,
         },
         height: {
-          min: 720,
+          min: 480,
         },
         facingMode: 'user',
       },
     })
+    
+    //video.setAttribute("controls", "true");
     this.stream = stream
+    video.setAttribute("playsinline", "true");
     video.srcObject = stream
 
     return new Promise((resolve) => {
