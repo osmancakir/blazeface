@@ -39,6 +39,7 @@ const Camera = () => {
         {imgSrc && (
           <img
             src={imgSrc}
+            alt={"captured im"}
           />
         )}
       </>
